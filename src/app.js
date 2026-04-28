@@ -1,5 +1,6 @@
 import express from "express";
 import { swaggerDocs } from "./config/swagger.js";
+import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
 
@@ -14,5 +15,11 @@ app.listen(3000 , () => {
     
 })
 
+
+
+//Middlewares
+
+    //Middleware de errores
+app.use(errorMiddleware);
 
 export default app;
