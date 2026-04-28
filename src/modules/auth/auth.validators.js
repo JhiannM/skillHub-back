@@ -44,12 +44,12 @@ export const loginValidator = [
     .notEmpty()
     .withMessage("El email es obligatorio")
     .isEmail()
-    .withMessage("El email no tiene un formato valido"),
+    .withMessage("El email no tiene un formato valido")
+    .trim()
+    .normalizeEmail(),
 
   body("password")
     .notEmpty()
-    .withMessage("La contrasena es obligatoria")
-    .trim()
-    .normalizeEmail(),
+    .withMessage("La contrasena es obligatoria"),
     
 ]

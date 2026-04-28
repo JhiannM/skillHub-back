@@ -30,6 +30,38 @@ export async function createUser(id, name, email, password, role) {
   return result.rows[0];
 }
 
+export async function createCustomerProfile(userId, { phone, city }) {
+  const result = await pool.query(
+    `INSERT INTO customers (user_id, phone, city)
+     VALUES ($1, $2, $3)
+     RETURNING user_id, phone, city`,
+    [userId, phone, city]
+  );
+
+  return result.rows[0];
+}
+
+export async function createProviderProfile(userId, {
+  phone,
+  city,
+  bio,
+  skills,
+  portfolioUrl,
+  schedule,
+}) {
+  const result = await pool.query(
+    `INSERT INTO providers
+     (user_id, phone, city, bio, skills, portfolio_url, schedule)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING *`,
+    [userId, phone, city, bio, skills, portfolioUrl, schedule]
+  );
+
+  return result.rows[0];
+}
+
+
+
 export async function roleSpecificInsert(userId, role) {
   if (role === "PROVIDER") {
     await pool.query(

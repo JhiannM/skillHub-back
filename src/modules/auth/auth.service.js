@@ -1,6 +1,11 @@
-import { createUser, findExistingUserByEmail, roleSpecificInsert } from "./auth.repository.js";
+import { createCustomerProfile, createProviderProfile, createUser, findExistingUserByEmail, findUserByEmail } from "./auth.repository.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../../config/jwt.js";
+
+const RoleProfileCreators = {
+  CUSTOMER: createCustomerProfile,
+  PROVIDER: createProviderProfile
+}
 
 //Registro de usuario
 export async function register( name, email, password, role) {
@@ -19,10 +24,9 @@ export async function register( name, email, password, role) {
   //Creación del usuario en la BD
   const user = await createUser(crypto.randomUUID(), name, email, passwordHash, role);
 
-  await roleSpecificInsert(user.id, role);
+  await RoleProfileCreators[role](user.id, { phone: null, city: null });
 
   const newUser = {
-    id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
@@ -42,7 +46,7 @@ export async function login(email, password) {
 
   //Buscar usuario
 
-  const user = await findExistingUserByEmail(email);
+  const user = await findUserByEmail(email);
 
   if(!user){
     const error = new Error("Credenciales inválidas");
@@ -50,8 +54,7 @@ export async function login(email, password) {
     throw error;
   }
 
-  //Compactar contraseña
-
+  //Comparar la contraseña ingresada con el hash guardado
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if(!isPasswordValid){
@@ -72,7 +75,6 @@ export async function login(email, password) {
   //Retornar token y usuario
 
   return {token, user: {
-    id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
