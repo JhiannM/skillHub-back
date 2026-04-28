@@ -19,12 +19,12 @@ export async function findExistingUserByEmail(email) {
   return result.rows[0];
 }
 
-export async function createUser(name, email, password, role) {
+export async function createUser(id, name, email, password, role) {
   const result = await pool.query(
-    `INSERT INTO users (name, email, password, role)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO users (id, name, email, password, role)
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING id, name, email, role`,
-    [name, email, password, role]
+    [id, name, email, password, role]
   );
 
   return result.rows[0];

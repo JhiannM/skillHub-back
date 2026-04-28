@@ -6,6 +6,7 @@ export async function register(req, res, next) {
     const { name, email, password, role } = req.body;
 
     const { token, user } = await authService.register(
+    
       name,
       email,
       password,

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { generateToken } from "../../config/jwt.js";
 
 //Registro de usuario
-export async function register(name, email, password, role) {
+export async function register( name, email, password, role) {
 
   const existingUser = await findExistingUserByEmail(email);
 
@@ -17,7 +17,7 @@ export async function register(name, email, password, role) {
   const passwordHash = await bcrypt.hash(password, 12);
 
   //Creación del usuario en la BD
-  const user = await createUser(name, email, passwordHash, role);
+  const user = await createUser(crypto.randomUUID(), name, email, passwordHash, role);
 
   await roleSpecificInsert(user.id, role);
 
@@ -29,11 +29,11 @@ export async function register(name, email, password, role) {
   };
 
   //Generar token JWT
-  const token = await generateToken(newUser);
+  /* const token = await generateToken(newUser); */
 
   //Retornamos el token y la información del usuario
 
-  return { token, user: newUser };
+  return { user: newUser };
 }
 
 
