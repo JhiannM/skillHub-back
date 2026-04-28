@@ -4,6 +4,7 @@ import { generateToken } from "./auth.utils.js";
 
 //Registro de usuario
 export async function register(name, email, password, role) {
+
   const existingUser = await findExistingUserByEmail(email);
 
   //Validar que no exista un usuario con el mismo email
@@ -36,3 +37,44 @@ export async function register(name, email, password, role) {
 }
 
 
+export async function login(email, password) {
+  
+
+  //Buscar usuario
+
+  const user = await findExistingUserByEmail(email);
+
+  if(!user){
+    const error = new Error("Credenciales inválidas");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  //Compactar contraseña
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if(!isPasswordValid){
+    const error = new Error("Credenciales inválidas");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  //Generar Token JWT
+
+  const token = await generateToken({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  });
+
+  //Retornar token y usuario
+
+  return {token, user: {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  }}
+}
