@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
     "lint": "eslint src/**/*.js",
     "format": "prettier --write src/**/*.js"
   },
@@ -33,6 +33,7 @@
     "morgan": "^1.10.1",
     "nodemo": "^1.0.0",
     "pg": "^8.20.0",
+    "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
