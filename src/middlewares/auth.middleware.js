@@ -1,5 +1,5 @@
 import { verifyToken } from "../config/jwt.js";
-import { errorResponse } from "../helpers/response.helper.js";
+import { errorResponse } from "../utils/response.js";
 
 export function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;

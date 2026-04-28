@@ -1,25 +1,34 @@
 import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import morgan from "morgan";
+import dotnev from "dotenv";
 import { swaggerDocs } from "./config/swagger.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
+import authRoutes from "./modules/auth/auth.routes.js";
 
 const app = express();
 
 
-//Documentación de la APi con Swagger 
 
+dotnev.config();
+
+
+app.use(helmet());
+app.use(cors());
+app.use(morgan("dev"));
+app.use(express.urlencoded({ extended: false }));
+
+// Body parser middleware
+app.use(express.json());
+
+// Swagger docs
 app.use("/api/docs", ...swaggerDocs);
 
+// Routes
+app.use("/api/auth", authRoutes);
 
-app.listen(3000 , () => {
-    console.log("Servidor corriendo en el puerto 3000");
-    
-})
-
-
-
-//Middlewares
-
-    //Middleware de errores
+// Error middleware (SIEMPRE al final)
 app.use(errorMiddleware);
 
 export default app;

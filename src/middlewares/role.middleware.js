@@ -1,4 +1,4 @@
-import { errorResponse } from "../helpers/response.helper.js";
+import { errorResponse } from "../utils/response.js";
 
 // Middleware para verificar el rol del usuario
 export function roleMiddleware(role) {

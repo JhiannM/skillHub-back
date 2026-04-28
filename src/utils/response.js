@@ -9,13 +9,13 @@ export function successResponse(res, message, data, statusCode = 200) {
     });
 }
 
-export function errorResponse(res, message, data, statusCode = 400) {
+export function errorResponse(res, message, statusCode = 400, data = null) {
 
     return res.status(statusCode).json({
 
         success: false,
         message: message,
-        data: null,
+        data: data,
     });
 
 }

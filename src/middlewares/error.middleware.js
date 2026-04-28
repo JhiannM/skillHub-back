@@ -8,7 +8,7 @@ const isDevelopment = process.env.NODE_ENV === "development";
 
   // Errores de express-validator
   if (err.array && typeof err.array === "function") {
-    return errorResponse(res, "Error de validacion", err.array(),400)
+    return errorResponse(res, "Error de validacion", 400, err.array())
   }
 
   // Errores de JWT

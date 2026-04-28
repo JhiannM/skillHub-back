@@ -1,6 +1,6 @@
 import { createUser, findExistingUserByEmail, roleSpecificInsert } from "./auth.repository.js";
 import bcrypt from "bcryptjs";
-import { generateToken } from "./auth.utils.js";
+import { generateToken } from "../../config/jwt.js";
 
 //Registro de usuario
 export async function register(name, email, password, role) {
