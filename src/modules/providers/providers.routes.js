@@ -5,7 +5,10 @@ import {
   searchProviders,
   getPublicProfile,
 } from "./providers.controller.js";
-import { updateProfileValidator, searchValidator } from "./providers.validators.js";
+import {
+  updateProfileValidator,
+  searchValidator,
+} from "./providers.validators.js";
 import { validateRequest } from "../../middlewares/validate-request.middleware.js";
 import { authenticate, authorize } from "../../middlewares/auth.middleware.js";
 
@@ -54,7 +57,7 @@ router.get("/search", searchValidator, validateRequest, searchProviders);
  *     summary: Obtener mi perfil de prestador
  *     tags: [Providers]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Perfil del prestador con porcentaje de completitud
@@ -68,7 +71,7 @@ router.get("/me/profile", authenticate, authorize("PROVIDER"), getMyProfile);
  *     summary: Actualizar mi perfil de prestador (HU-02, HU-03)
  *     tags: [Providers]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     requestBody:
  *       content:
  *         application/json:
@@ -104,7 +107,7 @@ router.patch(
   authorize("PROVIDER"),
   updateProfileValidator,
   validateRequest,
-  updateProfile
+  updateProfile,
 );
 
 // ─── Ruta dinámica DESPUÉS de las estáticas ───────────────────────────────────
