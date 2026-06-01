@@ -9,13 +9,18 @@ import authRoutes from "./modules/auth/auth.routes.js";
 
 const app = express();
 
-
-
 dotnev.config();
 
+const allowedOrigins = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins.length ? allowedOrigins : true,
+  credentials: true,
+}));
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: false }));
 
