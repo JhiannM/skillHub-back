@@ -1,14 +1,14 @@
-import { validationResult } from "express-validator";
 import { errorResponse } from "../utils/response.js";
 
 export function errorMiddleware(err, req, res, next) {
+  void next;
   console.error(err);
 
-const isDevelopment = process.env.NODE_ENV === "development";
+  const isDevelopment = process.env.NODE_ENV === "development";
 
   // Errores de express-validator
   if (err.array && typeof err.array === "function") {
-    return errorResponse(res, "Error de validacion", 400, err.array())
+    return errorResponse(res, "Error de validacion", 400, err.array());
   }
 
   // Errores de JWT

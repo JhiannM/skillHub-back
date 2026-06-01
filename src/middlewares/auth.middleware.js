@@ -16,7 +16,7 @@ export function authMiddleware(req, res, next) {
     req.user = payload;
 
     next();
-  } catch (error) {
+  } catch {
     return errorResponse(res, "Token invalido o expirado", 401);
   }
 }
