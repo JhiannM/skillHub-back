@@ -33,6 +33,9 @@ export async function searchProviders(req, res, next) {
     const { category, city, keyword, minPrice, maxPrice, page = 1, limit = 20 } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
+    // Si el usuario está autenticado y es PROVIDER, lo auto-filtramos
+    const excludeProviderId = (req.user && req.user.role === "PROVIDER") ? req.user.id : null;
+
     const providers = await providersService.search({
       category,
       city,
@@ -41,6 +44,7 @@ export async function searchProviders(req, res, next) {
       maxPrice: maxPrice ? parseFloat(maxPrice) : null,
       limit: parseInt(limit),
       offset,
+      excludeProviderId,
     });
 
     return successResponse(res, "Prestadores encontrados", { providers, page: parseInt(page), limit: parseInt(limit) });

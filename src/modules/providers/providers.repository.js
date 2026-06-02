@@ -62,11 +62,15 @@ export async function getProviderProfileCompletion(userId) {
   return result.rows[0]?.completion_percentage ?? 0;
 }
 
-export async function searchProviders({ category, city, keyword, minPrice, maxPrice, limit = 20, offset = 0 }) {
+export async function searchProviders({ category, city, keyword, minPrice, maxPrice, limit = 20, offset = 0, excludeProviderId }) {
   const conditions = ["1=1"];
   const values = [];
   let idx = 1;
 
+  if (excludeProviderId) {
+    conditions.push(`p.user_id != $${idx++}`);
+    values.push(excludeProviderId);
+  }
   if (category) {
     conditions.push(`p.main_category = $${idx++}`);
     values.push(category);
@@ -76,7 +80,7 @@ export async function searchProviders({ category, city, keyword, minPrice, maxPr
     values.push(city);
   }
   if (keyword) {
-    conditions.push(`(LOWER(u.name) LIKE $${idx} OR LOWER(p.bio) LIKE $${idx} OR LOWER(p.service_description) LIKE $${idx})`);
+    conditions.push(`(LOWER(u.name) LIKE $${idx} OR LOWER(p.bio) LIKE $${idx} OR LOWER(p.service_description) LIKE $${idx} OR (p.skills IS NOT NULL AND EXISTS (SELECT 1 FROM jsonb_array_elements_text(p.skills) AS elem WHERE LOWER(elem) LIKE $${idx})))`);
     values.push(`%${keyword.toLowerCase()}%`);
     idx++;
   }
@@ -139,6 +143,8 @@ export async function getPublicProviderProfile(userId) {
     `SELECT
        p.user_id,
        u.name,
+       u.email,
+       p.phone,
        p.city,
        p.bio,
        p.skills,
