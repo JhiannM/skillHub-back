@@ -27,7 +27,19 @@ export async function updateProviderProfile(userId, { phone, city, bio, skills, 
        updated_at = NOW()
      WHERE user_id = $1
      RETURNING *`,
-    [userId, phone, city, bio, skills, portfolioUrl, schedule, basePrice, serviceDescription, mainCategory, yearsExperience]
+    [
+      userId,
+      phone,
+      city,
+      bio,
+      skills ? JSON.stringify(skills) : skills,
+      portfolioUrl,
+      schedule ? JSON.stringify(schedule) : schedule,
+      basePrice,
+      serviceDescription,
+      mainCategory,
+      yearsExperience
+    ]
   );
   return result.rows[0];
 }
@@ -42,7 +54,7 @@ export async function getProviderProfileCompletion(userId) {
         CASE WHEN schedule IS NOT NULL THEN 1 ELSE 0 END +
         CASE WHEN base_price IS NOT NULL THEN 1 ELSE 0 END +
         CASE WHEN service_description IS NOT NULL AND service_description != '' THEN 1 ELSE 0 END +
-        CASE WHEN main_category IS NOT NULL AND main_category != '' THEN 1 ELSE 0 END) * 100 / 8
+        CASE WHEN main_category IS NOT NULL THEN 1 ELSE 0 END) * 100 / 8
        AS completion_percentage
      FROM providers WHERE user_id = $1`,
     [userId]
@@ -50,11 +62,15 @@ export async function getProviderProfileCompletion(userId) {
   return result.rows[0]?.completion_percentage ?? 0;
 }
 
-export async function searchProviders({ category, city, keyword, minPrice, maxPrice, limit = 20, offset = 0 }) {
+export async function searchProviders({ category, city, keyword, minPrice, maxPrice, limit = 20, offset = 0, excludeProviderId }) {
   const conditions = ["1=1"];
   const values = [];
   let idx = 1;
 
+  if (excludeProviderId) {
+    conditions.push(`p.user_id != $${idx++}`);
+    values.push(excludeProviderId);
+  }
   if (category) {
     conditions.push(`p.main_category = $${idx++}`);
     values.push(category);
@@ -64,7 +80,7 @@ export async function searchProviders({ category, city, keyword, minPrice, maxPr
     values.push(city);
   }
   if (keyword) {
-    conditions.push(`(LOWER(u.name) LIKE $${idx} OR LOWER(p.bio) LIKE $${idx} OR LOWER(p.service_description) LIKE $${idx})`);
+    conditions.push(`(LOWER(u.name) LIKE $${idx} OR LOWER(p.bio) LIKE $${idx} OR LOWER(p.service_description) LIKE $${idx} OR (p.skills IS NOT NULL AND EXISTS (SELECT 1 FROM jsonb_array_elements_text(p.skills) AS elem WHERE LOWER(elem) LIKE $${idx})))`);
     values.push(`%${keyword.toLowerCase()}%`);
     idx++;
   }
@@ -98,7 +114,7 @@ export async function searchProviders({ category, city, keyword, minPrice, maxPr
          CASE WHEN p.schedule IS NOT NULL THEN 1 ELSE 0 END +
          CASE WHEN p.base_price IS NOT NULL THEN 1 ELSE 0 END +
          CASE WHEN p.service_description IS NOT NULL AND p.service_description != '' THEN 1 ELSE 0 END +
-         CASE WHEN p.main_category IS NOT NULL AND p.main_category != '' THEN 1 ELSE 0 END) * 100 / 8
+         CASE WHEN p.main_category IS NOT NULL THEN 1 ELSE 0 END) * 100 / 8
       ) AS profile_completion,
       (COALESCE(p.services_done, 0) * 0.6 +
        (CASE WHEN p.bio IS NOT NULL AND p.bio != '' THEN 1 ELSE 0 END +
@@ -108,7 +124,7 @@ export async function searchProviders({ category, city, keyword, minPrice, maxPr
         CASE WHEN p.schedule IS NOT NULL THEN 1 ELSE 0 END +
         CASE WHEN p.base_price IS NOT NULL THEN 1 ELSE 0 END +
         CASE WHEN p.service_description IS NOT NULL AND p.service_description != '' THEN 1 ELSE 0 END +
-        CASE WHEN p.main_category IS NOT NULL AND p.main_category != '' THEN 1 ELSE 0 END) * 100 / 8 * 0.4
+        CASE WHEN p.main_category IS NOT NULL THEN 1 ELSE 0 END) * 100 / 8 * 0.4
       ) AS relevance_score
     FROM providers p
     JOIN users u ON u.id = p.user_id
@@ -127,6 +143,8 @@ export async function getPublicProviderProfile(userId) {
     `SELECT
        p.user_id,
        u.name,
+       u.email,
+       p.phone,
        p.city,
        p.bio,
        p.skills,

@@ -1,8 +1,6 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
-
-
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
@@ -13,16 +11,26 @@ const swaggerOptions = {
     },
     servers: [
       {
+        url: "/",
+        description: "Servidor actual (Autodetectado)",
+      },
+      {
+        url: "http://localhost:3001",
+        description: "Servidor local (Docker)",
+      },
+      {
         url: "http://localhost:3000",
-        description: "Servidor local",
+        description: "Servidor local (Sin Docker)",
       },
     ],
     components: {
       securitySchemes: {
         BearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
+          type: "apiKey",
+          in: "header",
+          name: "Authorization",
+          description:
+            "Ingresa tu token con el prefijo Bearer. Ejemplo: Bearer eyJhbGci...",
         },
       },
     },
@@ -37,10 +45,6 @@ const swaggerOptions = {
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-const swaggerDocs = [
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec),
-];
+const swaggerDocs = [swaggerUi.serve, swaggerUi.setup(swaggerSpec)];
 
 export { swaggerSpec, swaggerUi, swaggerDocs };
-

@@ -5,9 +5,12 @@ import {
   searchProviders,
   getPublicProfile,
 } from "./providers.controller.js";
-import { updateProfileValidator, searchValidator } from "./providers.validators.js";
+import {
+  updateProfileValidator,
+  searchValidator,
+} from "./providers.validators.js";
 import { validateRequest } from "../../middlewares/validate-request.middleware.js";
-import { authenticate, authorize } from "../../middlewares/auth.middleware.js";
+import { authenticate, authorize, optionalAuthenticate } from "../../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -17,6 +20,8 @@ const router = Router();
  *   get:
  *     summary: Buscar prestadores con filtros (RF-04, RF-07)
  *     tags: [Providers]
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: query
  *         name: category
@@ -29,7 +34,7 @@ const router = Router();
  *       - in: query
  *         name: keyword
  *         schema: { type: string }
- *         description: Palabra clave para buscar en nombre, bio o descripción
+ *         description: Palabra clave para buscar en nombre, bio, descripción o habilidades (JSONB)
  *       - in: query
  *         name: minPrice
  *         schema: { type: number }
@@ -41,9 +46,9 @@ const router = Router();
  *         schema: { type: integer, default: 1 }
  *     responses:
  *       200:
- *         description: Lista de prestadores ordenados por relevancia
+ *         description: Lista de prestadores ordenados por relevancia (el contratista logueado se auto-filtra)
  */
-router.get("/search", searchValidator, validateRequest, searchProviders);
+router.get("/search", optionalAuthenticate, searchValidator, validateRequest, searchProviders);
 
 // ─── Rutas estáticas PRIMERO (antes de /:providerId) ─────────────────────────
 
@@ -54,7 +59,7 @@ router.get("/search", searchValidator, validateRequest, searchProviders);
  *     summary: Obtener mi perfil de prestador
  *     tags: [Providers]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Perfil del prestador con porcentaje de completitud
@@ -68,7 +73,7 @@ router.get("/me/profile", authenticate, authorize("PROVIDER"), getMyProfile);
  *     summary: Actualizar mi perfil de prestador (HU-02, HU-03)
  *     tags: [Providers]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     requestBody:
  *       content:
  *         application/json:
@@ -104,7 +109,7 @@ router.patch(
   authorize("PROVIDER"),
   updateProfileValidator,
   validateRequest,
-  updateProfile
+  updateProfile,
 );
 
 // ─── Ruta dinámica DESPUÉS de las estáticas ───────────────────────────────────
