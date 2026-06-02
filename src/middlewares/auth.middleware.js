@@ -32,7 +32,7 @@ export function optionalAuthenticate(req, res, next) {
     const payload = verifyToken(token);
     req.user = payload;
     next();
-  } catch (error) {
+  } catch {
     return errorResponse(res, "Token invalido o expirado", 401);
   }
 }
