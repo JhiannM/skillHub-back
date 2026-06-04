@@ -2,6 +2,18 @@
 -- SkillHub - Schema PostgreSQL
 -- ============================================================
 
+-- ─── Cleanup ─────────────────────────────────────────────────
+DROP TABLE IF EXISTS requests CASCADE;
+DROP TABLE IF EXISTS services CASCADE;
+DROP TABLE IF EXISTS customers CASCADE;
+DROP TABLE IF EXISTS providers CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+DROP TYPE IF EXISTS role_enum CASCADE;
+DROP TYPE IF EXISTS category_enum CASCADE;
+DROP TYPE IF EXISTS mode_enum CASCADE;
+DROP TYPE IF EXISTS state_enum CASCADE;
+
 -- ─── Enumeraciones ───────────────────────────────────────────
 CREATE TYPE role_enum AS ENUM ('ADMIN', 'CUSTOMER', 'PROVIDER');
 CREATE TYPE category_enum AS ENUM (

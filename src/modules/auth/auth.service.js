@@ -33,11 +33,16 @@ export async function register( name, email, password, role) {
   };
 
   //Generar token JWT
-  /* const token = await generateToken(newUser); */
+  const token = await generateToken({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  });
 
   //Retornamos el token y la información del usuario
 
-  return { user: newUser };
+  return { token, user: newUser };
 }
 
 
